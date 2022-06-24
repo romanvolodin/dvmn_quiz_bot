@@ -1,5 +1,6 @@
 import logging
 
+import redis
 from environs import Env
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
@@ -32,6 +33,10 @@ def start(update, context):
 def button(update, context):
     query = update.callback_query
     query.answer()
+
+    db = context.bot_data["db"]
+    db.set(query.from_user.id, query.data)
+
     if query.data == "question":
         query.edit_message_text(text=f"Новый вопрос")
     if query.data == "give_up":
@@ -44,9 +49,12 @@ def main():
     env = Env()
     env.read_env()
 
+    db = redis.Redis(host=env("REDIS_URL"), port=env("REDIS_PORT"))
+
     updater = Updater(env("TG_TOKEN"))
 
     dispatcher = updater.dispatcher
+    dispatcher.bot_data["db"] = db
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CallbackQueryHandler(button))
     updater.start_polling()
