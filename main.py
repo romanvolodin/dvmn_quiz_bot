@@ -1,17 +1,35 @@
+from itertools import count
 from random import randint
 
 
 def parse_quiz_from_file(file):
     quiz = {}
+    counter = count()
+
+    number = next(counter)
+    question = None
+    answer = None
+
     for text in file.read().split("\n\n"):
         if not text:
             continue
-        number = randint(0, 1_000_000)
+
         header, body = text.split("\n", maxsplit=1)
-        if header.startswith("Вопрос"):
-            quiz[f"вопрос{number}"] = " ".join(body.split())
-        if header.startswith("Ответ"):
-            quiz[f"ответ{number}"] = " ".join(body.split())
+
+        if header.lower().strip().startswith("вопрос"):
+            question = " ".join(body.split())
+
+        if header.lower().strip().startswith("ответ"):
+            answer = " ".join(body.split())
+
+        if question and answer:
+            quiz[number] = {}
+            quiz[number]["question"] = question
+            quiz[number]["answer"] = answer
+            number = next(counter)
+            question = None
+            answer = None
+
     return quiz
 
 
