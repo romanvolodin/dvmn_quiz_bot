@@ -2,7 +2,7 @@ import logging
 
 import redis
 from environs import Env
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
 
 
@@ -16,14 +16,10 @@ logger = logging.getLogger(__name__)
 
 def start(update, context):
     keyboard = [
-        [
-            InlineKeyboardButton("Новый вопрос", callback_data="question"),
-            InlineKeyboardButton("Сдаться", callback_data="give_up"),
-        ],
-        [InlineKeyboardButton("Мой счёт", callback_data="score")],
+        ["Новый вопрос", "Сдаться"],
+        ["Мой счёт"],
     ]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    reply_markup = ReplyKeyboardMarkup(keyboard)
 
     update.message.reply_text(
         "Привет! Я бот для викторины!", reply_markup=reply_markup
