@@ -22,7 +22,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-USER_CHOICE, CHECK_ANSWER = range(2)
+QUIZ = 1
 
 keyboard = [
     ["Новый вопрос", "Сдаться"],
@@ -35,7 +35,7 @@ def start(update, context):
     update.message.reply_text(
         "Привет! Я бот для викторины!", reply_markup=reply_markup
     )
-    return USER_CHOICE
+    return QUIZ
 
 
 def ask_question(update, context):
@@ -46,27 +46,21 @@ def ask_question(update, context):
     update.message.reply_text(
         random_question["question"], reply_markup=reply_markup
     )
-    return CHECK_ANSWER
+    return QUIZ
 
 
 def check_answer(update, context):
-    answer = update.message.text
-    if answer == "Сдаться":
-        # FIXME: копипаста функции give_up
-        update.message.reply_text(
-            "Правильный ответ: Да", reply_markup=reply_markup
-        )
-        return USER_CHOICE
-    if answer == "да":
-        update.message.reply_text(
-            'Правильно! Для следующего вопроса нажмите "Новый вопрос"',
-            reply_markup=reply_markup,
-        )
-        return USER_CHOICE
-    update.message.reply_text(
-        "Не верно, попробуйте еще раз.", reply_markup=reply_markup
-    )
-    return CHECK_ANSWER
+    user_answer = update.message.text
+    correct_answer = context.user_data["correct_answer"]
+
+    reply = "Не верно, попробуйте еще раз."
+
+    if user_answer.lower() in correct_answer.lower():
+        reply = 'Правильно! Для следующего вопроса нажмите "Новый вопрос"'
+        del context.user_data["correct_answer"]
+
+    update.message.reply_text(reply, reply_markup=reply_markup)
+    return QUIZ
 
 
 def give_up(update, context):
@@ -79,14 +73,14 @@ def give_up(update, context):
         )
         del context.user_data["correct_answer"]
     update.message.reply_text(reply, reply_markup=reply_markup)
-    return USER_CHOICE
+    return QUIZ
 
 
 def show_user_score(update, context):
     update.message.reply_text(
         "Ваш счет: 100500 очков.", reply_markup=reply_markup
     )
-    return USER_CHOICE
+    return QUIZ
 
 
 def cancel(update, context):
@@ -111,14 +105,14 @@ def main():
         ConversationHandler(
             entry_points=[CommandHandler("start", start)],
             states={
-                USER_CHOICE: [
+                QUIZ: [
                     MessageHandler(
                         Filters.regex("Новый вопрос"), ask_question
                     ),
                     MessageHandler(Filters.regex("Сдаться"), give_up),
                     MessageHandler(Filters.regex("Мой счет"), show_user_score),
+                    MessageHandler(Filters.text, check_answer),
                 ],
-                CHECK_ANSWER: [MessageHandler(Filters.text, check_answer)],
             },
             fallbacks=[CommandHandler("cancel", cancel)],
         )
