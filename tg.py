@@ -57,6 +57,7 @@ def check_answer(update, context):
 
     if user_answer.lower() in correct_answer.lower():
         reply = 'Правильно! Для следующего вопроса нажмите "Новый вопрос"'
+        context.user_data["score"] = context.user_data.get("score", 0) + 100
         del context.user_data["correct_answer"]
 
     update.message.reply_text(reply, reply_markup=reply_markup)
@@ -77,9 +78,16 @@ def give_up(update, context):
 
 
 def show_user_score(update, context):
-    update.message.reply_text(
-        "Ваш счет: 100500 очков.", reply_markup=reply_markup
+    reply = (
+        "Вы пока не набрали ни одного очка. "
+        'Попробуйте ответить на пару вопросов. Для запуска нажмите "Новый вопрос".'
     )
+    score = context.user_data.get("score", 0)
+
+    if score:
+        reply = f"Ваш счет: {score} очков."
+
+    update.message.reply_text(reply, reply_markup=reply_markup)
     return QUIZ
 
 
