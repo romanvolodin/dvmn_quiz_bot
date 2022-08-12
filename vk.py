@@ -38,6 +38,26 @@ def ask_question(event, vk_api, quiz, db):
     )
 
 
+def give_up(event, vk_api, db):
+    reply = 'Сначала надо задать вопрос. Нажмите кнопку "Новый вопрос"'
+    correct_answer = db.get(event.user_id)
+
+    if correct_answer:
+        decoded_answer = correct_answer.decode()
+        reply = (
+            f"Правильный ответ: {decoded_answer}\n"
+            'Для продолжения кнопку "Новый вопрос"'
+        )
+        db.delete(event.user_id)
+
+    vk_api.messages.send(
+        user_id=event.user_id,
+        message=reply,
+        random_id=random.randint(1, 1000),
+        keyboard=KEYBOARD.get_keyboard(),
+    )
+
+
 if __name__ == "__main__":
     env = Env()
     env.read_env()
@@ -54,5 +74,9 @@ if __name__ == "__main__":
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
             if event.text == "Новый вопрос":
                 ask_question(event, vk_api, quiz, db)
+                continue
+
+            if event.text == "Сдаться":
+                give_up(event, vk_api, db)
                 continue
             echo(event, vk_api)
