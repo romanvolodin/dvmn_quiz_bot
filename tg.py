@@ -91,8 +91,18 @@ def show_user_score(update, context):
     return QUIZ
 
 
-def cancel(update, context):
-    update.message.reply_text("Bye!", reply_markup=ReplyKeyboardRemove())
+def stop_quiz(update, context):
+    correct_answer = context.user_data.get("correct_answer")
+    if correct_answer:
+        del context.user_data["correct_answer"]
+
+    score = context.user_data.get("score")
+    if score:
+        del context.user_data["score"]
+
+    update.message.reply_text(
+        "Это была славная битва!", reply_markup=ReplyKeyboardRemove()
+    )
     return ConversationHandler.END
 
 
@@ -114,6 +124,7 @@ def main():
             entry_points=[CommandHandler("start", start)],
             states={
                 QUIZ: [
+                    CommandHandler("cancel", stop_quiz),
                     MessageHandler(
                         Filters.regex("Новый вопрос"), ask_question
                     ),
@@ -122,7 +133,7 @@ def main():
                     MessageHandler(Filters.text, check_answer),
                 ],
             },
-            fallbacks=[CommandHandler("cancel", cancel)],
+            fallbacks=[CommandHandler("cancel", stop_quiz)],
         )
     )
     updater.start_polling()
