@@ -45,7 +45,14 @@ def check_answer(event, vk_api, db):
     reply = "Не верно, попробуйте еще раз."
 
     if user_answer.lower() in correct_answer.lower():
+        points = 100
+        score = db.get(f"{event.user_id}_score")
+
+        if score:
+            points = int(score.decode()) + points
+
         reply = 'Правильно! Для следующего вопроса нажмите "Новый вопрос"'
+        db.set(f"{event.user_id}_score", points)
         db.delete(event.user_id)
 
     vk_api.messages.send(
@@ -76,6 +83,23 @@ def give_up(event, vk_api, db):
     )
 
 
+def show_user_score(event, vk_api, db):
+    reply = (
+        "Вы пока не набрали ни одного очка. Попробуйте ответить "
+        'на пару вопросов. Для запуска нажмите "Новый вопрос".'
+    )
+    score = db.get(f"{event.user_id}_score")
+    if score:
+        reply = f"Ваш счет: {score.decode()} очков."
+
+    vk_api.messages.send(
+        user_id=event.user_id,
+        message=reply,
+        random_id=random.randint(1, 1000),
+        keyboard=KEYBOARD.get_keyboard(),
+    )
+
+
 if __name__ == "__main__":
     env = Env()
     env.read_env()
@@ -96,6 +120,10 @@ if __name__ == "__main__":
 
             if event.text == "Сдаться":
                 give_up(event, vk_api, db)
+                continue
+
+            if event.text == "Мой счет":
+                show_user_score(event, vk_api, db)
                 continue
 
             check_answer(event, vk_api, db)
