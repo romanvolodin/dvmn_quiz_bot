@@ -3,3 +3,4 @@ environs==9.5.*
 flake8==4.0.*
 python-telegram-bot==13.12
 redis==4.3.*
+vk_api==11.9.*
