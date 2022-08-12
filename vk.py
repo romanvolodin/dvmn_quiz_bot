@@ -3,14 +3,22 @@ import random
 import redis
 import vk_api as vk
 from environs import Env
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkEventType, VkLongPoll
 
 
 def echo(event, vk_api):
+    keyboard = VkKeyboard()
+    keyboard.add_button("Новый вопрос", color=VkKeyboardColor.PRIMARY)
+    keyboard.add_button("Сдаться", color=VkKeyboardColor.NEGATIVE)
+    keyboard.add_line()
+    keyboard.add_button("Мой счет")
+
     vk_api.messages.send(
         user_id=event.user_id,
         message=f"ECHO: {event.text}",
         random_id=random.randint(1, 1000),
+        keyboard=keyboard.get_keyboard(),
     )
 
 
