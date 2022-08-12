@@ -17,6 +17,15 @@ KEYBOARD.add_line()
 KEYBOARD.add_button("Мой счет")
 
 
+def start(event, vk_api):
+    vk_api.messages.send(
+        user_id=event.user_id,
+        message="Привет! Я бот для проведения викторины!",
+        random_id=random.randint(1, 1000),
+        keyboard=KEYBOARD.get_keyboard(),
+    )
+
+
 def ask_question(event, vk_api, quiz, db):
     random_question = choice(quiz)
     db.set(event.user_id, random_question["answer"])
@@ -105,6 +114,10 @@ if __name__ == "__main__":
 
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+            if event.text.lower() == "старт":
+                start(event, vk_api)
+                continue
+
             if event.text == "Новый вопрос":
                 ask_question(event, vk_api, quiz, db)
                 continue
