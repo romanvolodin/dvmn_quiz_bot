@@ -4,7 +4,6 @@ import redis
 from environs import Env
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
-    CallbackQueryHandler,
     CommandHandler,
     ConversationHandler,
     Filters,
