@@ -12,7 +12,7 @@ from telegram.ext import (
     Updater,
 )
 
-from main import parse_quiz_from_file
+from quiz import parse_quiz_from_file
 
 
 logging.basicConfig(

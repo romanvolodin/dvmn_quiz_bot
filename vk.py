@@ -7,7 +7,7 @@ from environs import Env
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkEventType, VkLongPoll
 
-from main import parse_quiz_from_file
+from quiz import parse_quiz_from_file
 
 
 KEYBOARD = VkKeyboard()
