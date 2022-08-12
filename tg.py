@@ -40,8 +40,12 @@ def start(update, context):
 
 def ask_question(update, context):
     quiz = context.bot_data["quiz"]
+    db = context.bot_data["db"]
+    user = update.message.from_user
+
     random_question = choice(quiz)
     context.user_data["correct_answer"] = random_question["answer"]
+    db.set(user["id"], random_question["question"])
 
     update.message.reply_text(
         random_question["question"], reply_markup=reply_markup
