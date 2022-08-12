@@ -10,28 +10,23 @@ from vk_api.longpoll import VkEventType, VkLongPoll
 from main import parse_quiz_from_file
 
 
-def echo(event, vk_api):
-    keyboard = VkKeyboard()
-    keyboard.add_button("Новый вопрос", color=VkKeyboardColor.PRIMARY)
-    keyboard.add_button("Сдаться", color=VkKeyboardColor.NEGATIVE)
-    keyboard.add_line()
-    keyboard.add_button("Мой счет")
+KEYBOARD = VkKeyboard()
+KEYBOARD.add_button("Новый вопрос", color=VkKeyboardColor.PRIMARY)
+KEYBOARD.add_button("Сдаться", color=VkKeyboardColor.NEGATIVE)
+KEYBOARD.add_line()
+KEYBOARD.add_button("Мой счет")
 
+
+def echo(event, vk_api):
     vk_api.messages.send(
         user_id=event.user_id,
         message=f"ECHO: {event.text}",
         random_id=random.randint(1, 1000),
-        keyboard=keyboard.get_keyboard(),
+        keyboard=KEYBOARD.get_keyboard(),
     )
 
 
 def ask_question(event, vk_api, quiz, db):
-    keyboard = VkKeyboard()
-    keyboard.add_button("Новый вопрос", color=VkKeyboardColor.PRIMARY)
-    keyboard.add_button("Сдаться", color=VkKeyboardColor.NEGATIVE)
-    keyboard.add_line()
-    keyboard.add_button("Мой счет")
-
     random_question = choice(quiz)
     db.set(event.user_id, random_question["answer"])
 
@@ -39,7 +34,7 @@ def ask_question(event, vk_api, quiz, db):
         user_id=event.user_id,
         message=random_question["question"],
         random_id=random.randint(1, 1000),
-        keyboard=keyboard.get_keyboard(),
+        keyboard=KEYBOARD.get_keyboard(),
     )
 
 
