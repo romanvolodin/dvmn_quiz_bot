@@ -17,15 +17,6 @@ KEYBOARD.add_line()
 KEYBOARD.add_button("Мой счет")
 
 
-def echo(event, vk_api):
-    vk_api.messages.send(
-        user_id=event.user_id,
-        message=f"ECHO: {event.text}",
-        random_id=random.randint(1, 1000),
-        keyboard=KEYBOARD.get_keyboard(),
-    )
-
-
 def ask_question(event, vk_api, quiz, db):
     random_question = choice(quiz)
     db.set(event.user_id, random_question["answer"])
