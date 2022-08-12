@@ -38,6 +38,24 @@ def ask_question(event, vk_api, quiz, db):
     )
 
 
+def check_answer(event, vk_api, db):
+    user_answer = event.text
+    correct_answer = db.get(event.user_id).decode()
+
+    reply = "Не верно, попробуйте еще раз."
+
+    if user_answer.lower() in correct_answer.lower():
+        reply = 'Правильно! Для следующего вопроса нажмите "Новый вопрос"'
+        db.delete(event.user_id)
+
+    vk_api.messages.send(
+        user_id=event.user_id,
+        message=reply,
+        random_id=random.randint(1, 1000),
+        keyboard=KEYBOARD.get_keyboard(),
+    )
+
+
 def give_up(event, vk_api, db):
     reply = 'Сначала надо задать вопрос. Нажмите кнопку "Новый вопрос"'
     correct_answer = db.get(event.user_id)
@@ -79,4 +97,5 @@ if __name__ == "__main__":
             if event.text == "Сдаться":
                 give_up(event, vk_api, db)
                 continue
-            echo(event, vk_api)
+
+            check_answer(event, vk_api, db)
