@@ -1,4 +1,5 @@
 import logging
+from random import choice
 
 import redis
 from environs import Env
@@ -10,6 +11,8 @@ from telegram.ext import (
     MessageHandler,
     Updater,
 )
+
+from main import parse_quiz_from_file
 
 
 logging.basicConfig(
@@ -36,7 +39,13 @@ def start(update, context):
 
 
 def ask_question(update, context):
-    update.message.reply_text("Да? Нет?", reply_markup=reply_markup)
+    quiz = context.bot_data["quiz"]
+    random_question = choice(quiz)
+    context.user_data["correct_answer"] = random_question["answer"]
+
+    update.message.reply_text(
+        random_question["question"], reply_markup=reply_markup
+    )
     return CHECK_ANSWER
 
 
@@ -61,10 +70,15 @@ def check_answer(update, context):
 
 
 def give_up(update, context):
-    # TODO: Выводить ответ только если есть заданный вопрос
-    update.message.reply_text(
-        "Правильный ответ: Да", reply_markup=reply_markup
-    )
+    reply = 'Сначала надо задать вопрос. Нажмите кнопку "Новый вопрос"'
+    correct_answer = context.user_data.get("correct_answer")
+    if correct_answer:
+        reply = (
+            f"Правильный ответ: {correct_answer}\n"
+            'Для продолжения кнопку "Новый вопрос"'
+        )
+        del context.user_data["correct_answer"]
+    update.message.reply_text(reply, reply_markup=reply_markup)
     return USER_CHOICE
 
 
@@ -85,11 +99,14 @@ def main():
     env.read_env()
 
     db = redis.Redis(host=env("REDIS_URL"), port=env("REDIS_PORT"))
+    with open("tmp/quiz-questions/120br.txt", "r", encoding="KOI8-R") as file:
+        quiz = parse_quiz_from_file(file)
 
     updater = Updater(env("TG_TOKEN"))
 
     dispatcher = updater.dispatcher
     dispatcher.bot_data["db"] = db
+    dispatcher.bot_data["quiz"] = quiz
     dispatcher.add_handler(
         ConversationHandler(
             entry_points=[CommandHandler("start", start)],
