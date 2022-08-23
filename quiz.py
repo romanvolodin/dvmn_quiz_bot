@@ -1,7 +1,6 @@
 from itertools import count
 from os import listdir
 from os.path import join
-from random import randint
 
 from environs import Env
 
