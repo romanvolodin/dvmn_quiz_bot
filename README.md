@@ -2,9 +2,9 @@
 
 Это бот для Телеграма и ВК, который умеет проводить викторины.
 
-https://user-images.githubusercontent.com/9511905/184414154-28f49616-a5c1-4829-8764-6cf35c365247.mp4
+<https://user-images.githubusercontent.com/9511905/184414154-28f49616-a5c1-4829-8764-6cf35c365247.mp4>
 
-https://user-images.githubusercontent.com/9511905/184414996-479f086b-8945-43f6-93e6-89d776f04382.mp4
+<https://user-images.githubusercontent.com/9511905/184414996-479f086b-8945-43f6-93e6-89d776f04382.mp4>
 
 ## Требования
 
@@ -23,7 +23,7 @@ https://user-images.githubusercontent.com/9511905/184414996-479f086b-8945-43f6-9
 pip install -r requirements.txt
 ```
 
-Скачайте и распакуйте [архив с вопросами](https://dvmn.org/media/modules_dist/quiz-questions.zip). Путь к одному из файлов надо будет вписать в переменные окружени.
+Скачайте и распакуйте [архив с вопросами](https://dvmn.org/media/modules_dist/quiz-questions.zip). Путь к папке надо будет вписать в переменные окружени.
 
 ## Переменные окружения
 
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 - `VK_ACCESS_KEY` — ключ доступа к группе VK.
 - `REDIS_URL` — адрес для подключения к БД. Если Redis запушен на локальной машине, впишите `localhost`.
 - `REDIS_PORT` — порт для подключения к БД, по-умолчанию `6379`.
-- `QUIZ_PATH` — путь к файлу с вопросами для викторины.
+- `QUIZ_PATH` — путь к папке с вопросами для викторины.
 
 Пример:
 
@@ -44,7 +44,7 @@ TG_BOT_TOKEN=23052948:AAjh0e1U_vUkAZ0XZJUdfxjfUfwDLA0
 VK_ACCESS_KEY=79a650716359a19ed9def1bb6172203e0b383a46c2ab089ba6dfebb88260d41145e9011
 REDIS_URL=localhost
 REDIS_PORT=6379
-QUIZ_PATH=/path/to/quiz-questions.txt
+QUIZ_PATH=/path/to/quiz-questions/
 ```
 
 ## Запуск

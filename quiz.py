@@ -1,12 +1,16 @@
 from itertools import count
+from os import listdir
+from os.path import join
 from random import randint
+
+from environs import Env
 
 
 def parse_quiz_from_file(file):
     quiz = {}
     counter = count()
 
-    number = next(counter)
+    number = str(next(counter))
     question = None
     answer = None
 
@@ -14,7 +18,11 @@ def parse_quiz_from_file(file):
         if not text:
             continue
 
-        header, body = text.split("\n", maxsplit=1)
+        splitted_text = text.split("\n", maxsplit=1)
+        if len(splitted_text) == 1:
+            continue
+
+        header, body = splitted_text
 
         if header.lower().strip().startswith("вопрос"):
             question = " ".join(body.split())
@@ -26,18 +34,23 @@ def parse_quiz_from_file(file):
             quiz[number] = {}
             quiz[number]["question"] = question
             quiz[number]["answer"] = answer
-            number = next(counter)
+            number = str(next(counter))
             question = None
             answer = None
 
     return quiz
 
 
-def main():
-    with open("tmp/quiz-questions/120br.txt", "r", encoding="KOI8-R") as file:
-        quiz = parse_quiz_from_file(file)
-    print(quiz)
+def parse_quiz_from_dir(dir_path):
+    quiz = {}
+    for file_path in listdir(dir_path):
+        with open(join(dir_path, file_path), "r", encoding="KOI8-R") as file:
+            quiz.update(**parse_quiz_from_file(file))
+    return quiz
 
 
 if __name__ == "__main__":
-    main()
+    env = Env()
+    env.read_env()
+    quiz_path = env.path("QUIZ_PATH")
+    print(parse_quiz_from_dir(quiz_path))
