@@ -27,12 +27,12 @@ def start(event, vk_api):
 
 
 def ask_question(event, vk_api, quiz, db):
-    random_question = choice(quiz)
-    db.set(event.user_id, random_question["answer"])
+    random_question, correct_answer = choice(list(quiz.items()))
+    db.set(event.user_id, correct_answer)
 
     vk_api.messages.send(
         user_id=event.user_id,
-        message=random_question["question"],
+        message=random_question,
         random_id=random.randint(1, 1000),
         keyboard=KEYBOARD.get_keyboard(),
     )

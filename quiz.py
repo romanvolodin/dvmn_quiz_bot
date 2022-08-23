@@ -1,4 +1,3 @@
-from itertools import count
 from os import listdir
 from os.path import join
 
@@ -7,9 +6,7 @@ from environs import Env
 
 def parse_quiz_from_file(file):
     quiz = {}
-    counter = count()
 
-    number = str(next(counter))
     question = None
     answer = None
 
@@ -30,10 +27,7 @@ def parse_quiz_from_file(file):
             answer = " ".join(body.split())
 
         if question and answer:
-            quiz[number] = {}
-            quiz[number]["question"] = question
-            quiz[number]["answer"] = answer
-            number = str(next(counter))
+            quiz[question] = answer
             question = None
             answer = None
 
