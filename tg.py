@@ -12,7 +12,7 @@ from telegram.ext import (
     Updater,
 )
 
-from quiz import parse_quiz_from_file
+from quiz import parse_quiz_from_dir
 
 
 logging.basicConfig(
@@ -113,8 +113,7 @@ def main():
     env.read_env()
 
     db = redis.Redis(host=env("REDIS_URL"), port=env("REDIS_PORT"))
-    with open("tmp/quiz-questions/120br.txt", "r", encoding="KOI8-R") as file:
-        quiz = parse_quiz_from_file(file)
+    quiz = parse_quiz_from_dir(env("QUIZ_PATH"))
 
     updater = Updater(env("TG_TOKEN"))
 

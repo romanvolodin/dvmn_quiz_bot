@@ -7,7 +7,7 @@ from environs import Env
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkEventType, VkLongPoll
 
-from quiz import parse_quiz_from_file
+from quiz import parse_quiz_from_dir
 
 
 KEYBOARD = VkKeyboard()
@@ -105,8 +105,7 @@ if __name__ == "__main__":
     env.read_env()
 
     db = redis.Redis(host=env("REDIS_URL"), port=env("REDIS_PORT"))
-    with open("tmp/quiz-questions/120br.txt", "r", encoding="KOI8-R") as file:
-        quiz = parse_quiz_from_file(file)
+    quiz = parse_quiz_from_dir(env("QUIZ_PATH"))
 
     vk_session = vk.VkApi(token=env("VK_ACCESS_KEY"))
     vk_api = vk_session.get_api()
