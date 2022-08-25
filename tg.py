@@ -44,63 +44,79 @@ def ask_question(update, context):
     user = update.message.from_user
 
     random_question, correct_answer = choice(list(quiz.items()))
-    context.user_data["correct_answer"] = correct_answer
-    db.set(user["id"], random_question)
+    db.set(user["id"], correct_answer)
 
     update.message.reply_text(random_question, reply_markup=reply_markup)
     return QUIZ
 
 
 def check_answer(update, context):
+    db = context.bot_data["db"]
+    user = update.message.from_user
     user_answer = update.message.text
-    correct_answer = context.user_data["correct_answer"]
+    correct_answer = db.get(user["id"]).decode()
 
     reply = "Не верно, попробуйте еще раз."
 
     if user_answer.lower() in correct_answer.lower():
+        points = 100
+        score = db.get(f"{user['id']}_score")
+
+        if score:
+            points = int(score.decode()) + points
+
         reply = 'Правильно! Для следующего вопроса нажмите "Новый вопрос"'
-        context.user_data["score"] = context.user_data.get("score", 0) + 100
-        del context.user_data["correct_answer"]
+        db.set(f"{user['id']}_score", points)
+        db.delete(user["id"])
 
     update.message.reply_text(reply, reply_markup=reply_markup)
     return QUIZ
 
 
 def give_up(update, context):
+    db = context.bot_data["db"]
+    user = update.message.from_user
     reply = 'Сначала надо задать вопрос. Нажмите кнопку "Новый вопрос"'
-    correct_answer = context.user_data.get("correct_answer")
+    correct_answer = db.get(user["id"])
+
     if correct_answer:
+        decoded_answer = correct_answer.decode()
         reply = (
-            f"Правильный ответ: {correct_answer}\n"
+            f"Правильный ответ: {decoded_answer}\n"
             'Для продолжения кнопку "Новый вопрос"'
         )
-        del context.user_data["correct_answer"]
+        db.delete(user["id"])
     update.message.reply_text(reply, reply_markup=reply_markup)
     return QUIZ
 
 
 def show_user_score(update, context):
+    db = context.bot_data["db"]
+    user = update.message.from_user
     reply = (
         "Вы пока не набрали ни одного очка. "
         'Попробуйте ответить на пару вопросов. Для запуска нажмите "Новый вопрос".'
     )
-    score = context.user_data.get("score", 0)
+    score = db.get(f"{user['id']}_score")
 
     if score:
-        reply = f"Ваш счет: {score} очков."
+        reply = f"Ваш счет: {score.decode()} очков."
 
     update.message.reply_text(reply, reply_markup=reply_markup)
     return QUIZ
 
 
 def stop_quiz(update, context):
-    correct_answer = context.user_data.get("correct_answer")
-    if correct_answer:
-        del context.user_data["correct_answer"]
+    db = context.bot_data["db"]
+    user = update.message.from_user
 
-    score = context.user_data.get("score")
+    correct_answer = db.get(user["id"])
+    if correct_answer:
+        db.delete(user["id"])
+
+    score = db.get(f"{user['id']}_score")
     if score:
-        del context.user_data["score"]
+        db.delete(f"{user['id']}_score")
 
     update.message.reply_text(
         "Это была славная битва!", reply_markup=ReplyKeyboardRemove()
